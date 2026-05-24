@@ -34,11 +34,18 @@ function LiveCard({ item }) {
   const platform = PLATFORMS[item.platform] || { name: item.platform, color: "#888", bg: "#88888815" };
   const statusStyle = {
     live:     { bg: "#ff444420", border: "#ff4444", label: "● LIVE", color: "#ff4444" },
-    upcoming: { bg: "#ffffff08", border: "#ffffff20", label: "예정",   color: "#aaa"    },
-    ended:    { bg: "#ffffff05", border: "#ffffff10", label: "종료",   color: "#555"    },
+    upcoming: { bg: "#ffffff08", border: "#ffffff20", label: "⏰ 예정", color: "#4af" },
+    ended:    { bg: "#ffffff05", border: "#ffffff10", label: "종료",   color: "#555" },
   }[item.status] || { bg: "#ffffff08", border: "#ffffff20", label: item.status, color: "#aaa" };
 
-  const emoji = CATEGORY_EMOJI[item.category] || "📺";
+  const formatTime = (t) => {
+    if (!t) return "";
+    if (t.includes("T")) return t.split("T")[1].slice(0, 5);
+    return t.slice(0, 5);
+  };
+
+  const start = formatTime(item.start_time);
+  const end = formatTime(item.end_time);
 
   return (
     <div
@@ -51,37 +58,28 @@ function LiveCard({ item }) {
       onMouseLeave={e => e.currentTarget.style.transform = "none"}
       onClick={() => item.url && window.open(item.url, "_blank")}
     >
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-        <div style={{ fontSize: 28, lineHeight: 1 }}>{item.thumbnail || emoji}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3, flexWrap: "wrap" }}>
-            <span style={{
-              background: platform.bg, color: platform.color,
-              border: `1px solid ${platform.color}40`,
-              fontSize: 10, fontWeight: 700, padding: "1px 6px", borderRadius: 4,
-            }}>{platform.name}</span>
-            <span style={{ color: statusStyle.color, fontSize: 10, fontWeight: 700 }}>{statusStyle.label}</span>
-            {item.status === "live" && <ViewerBadge count={item.viewers} />}
-          </div>
-          <div style={{
-            color: item.status === "ended" ? "#666" : "#eee",
-            fontSize: 13, fontWeight: 600,
-            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          }}>{item.title}</div>
-          <div style={{ display: "flex", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
-            {(item.start_time || item.startTime) && (
-              <span style={{ color: "#888", fontSize: 11 }}>
-                🕐 {item.start_time || item.startTime}{(item.end_time || item.endTime) ? `~${item.end_time || item.endTime}` : ""}
-              </span>
-            )}
-            {item.discount && (
-              <span style={{ color: "#f90", fontSize: 11, fontWeight: 600 }}>🏷 {item.discount}</span>
-            )}
-            {item.host && (
-              <span style={{ color: "#666", fontSize: 11 }}>👤 {item.host}</span>
-            )}
-          </div>
-        </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+        <span style={{
+          background: platform.bg, color: platform.color,
+          border: `1px solid ${platform.color}40`,
+          fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
+        }}>{platform.name}</span>
+        <span style={{ color: statusStyle.color, fontSize: 10, fontWeight: 700 }}>{statusStyle.label}</span>
+        {item.status === "live" && <ViewerBadge count={item.viewers} />}
+      </div>
+      <div style={{
+        color: item.status === "ended" ? "#666" : "#fff",
+        fontSize: 14, fontWeight: 700, marginBottom: 6, lineHeight: 1.4,
+      }}>{item.title}</div>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        {start && (
+          <span style={{ color: "#4af", fontSize: 12, fontWeight: 600 }}>
+            🕐 {start}{end ? ` ~ ${end}` : ""}
+          </span>
+        )}
+        {item.host && (
+          <span style={{ color: "#888", fontSize: 12 }}>👤 {item.host}</span>
+        )}
       </div>
     </div>
   );
